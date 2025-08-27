@@ -2,12 +2,22 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import { Tabs } from 'expo-router'
 import { AntDesign, Feather, Ionicons } from '@expo/vector-icons'
+import { useAuth } from '@clerk/clerk-expo'
 
 export default function TabLayout() {
+	const { signOut } = useAuth()
+
   return (
 	<Tabs 
 		screenOptions={{
 			tabBarActiveTintColor: 'black', 
+			headerRight: () => <Feather
+			name="log-out"
+			size={23}
+			color="black"
+			style={{ marginRight: 10 }}
+			onPress={() => signOut()}
+			/>
 		}}
 	>
 		<Tabs.Screen 
