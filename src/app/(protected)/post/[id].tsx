@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { useLocalSearchParams } from "expo-router";
 import { Image, ScrollView, Text, View, TextInput, Pressable, KeyboardAvoidingView, Platform, FlatList } from "react-native";
-import posts from '../../../../assets/data/posts.json'
-import comments from '../../../../assets/data/comments.json';
-import PostListItem from "../../../components/PostListItem";
+import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { formatDistanceToNowStrict } from 'date-fns';
 import Entypo from '@expo/vector-icons/Entypo';
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
+import posts from '../../../../assets/data/posts.json'
+import comments from '../../../../assets/data/comments.json';
+import PostListItem from "../../../components/PostListItem";
 
 export default function PostDetailed() {
   const { id } = useLocalSearchParams()
