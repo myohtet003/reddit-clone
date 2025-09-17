@@ -1,49 +1,63 @@
-import { View, Text, Image, StyleSheet, FlatList } from "react-native";
-import React, {useState, useEffect} from "react"; 
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 
-import PostListItem from "../../../components/PostListItem";
-import { supabase } from "../../../lib/superbase";
-import { Tables } from "../../../types/database.types";
+import PostListItem from "../../../components/PostListItem"; 
+import { fetchPosts } from "../../../services/postService";
 
-type Post = Tables<"posts"> & {
-	user: Tables<"users">;
-	group: Tables<"groups">;
-};
+
 
 // import posts from "../../../../assets/data/posts.json";
 
-
 export default function HomeScreen() {
+  const {
+    data: posts,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["posts"],
+    queryFn: async () => fetchPosts(),
+  });
 
-	  const [posts, setPosts] = useState<Post[]>([]);
+//   console.log("data", posts);
 
-	  useEffect(() => {
-	    fetchPosts();
-	  }, []);
+  //   const [posts, setPosts] = useState<Post[]>([]);
+  //   const [isLoading, setIsLoading] = useState(false);
 
-	  const fetchPosts = async () => {
-	    const { data, error } = await supabase
-	      .from('posts')
-	      .select('*, group:groups(*), user:users!posts_user_id_fkey(*)');
-		//   console.log("error", error);
-		//   console.log("data", JSON.stringify(data,null, 2));
-		if(error) {
-			console.log("Error fetching posts:", error.message);
-			return;
-		} else {
-			setPosts(data);
-		}
-	  }
-  
+  //   useEffect(() => {
+  //     fetchPosts();
+  //   }, []);
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Error loading posts</Text>
+      </View>
+    );
+  }
+
   return (
     <View>
-		<FlatList
-			data={posts}
-			renderItem={({ item }) => <PostListItem post={item} />}
-			keyExtractor={(item) => item.id}
-		/>
+      <FlatList
+        data={posts}
+        renderItem={({ item }) => <PostListItem post={item} />}
+        keyExtractor={(item) => item.id}
+      />
     </View>
   );
-}  
-
-
+}

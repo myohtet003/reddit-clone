@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,28 +16,46 @@ import posts from "../../../../assets/data/posts.json";
 import comments from "../../../../assets/data/comments.json";
 import PostListItem from "../../../components/PostListItem";
 import CommentListItem from "../../../components/CommentListItem";
+import { fetchPostsById } from "../../../services/postService";
+import { useQuery } from "@tanstack/react-query";
 
 export default function PostDetailed() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
 
   const [comment, setComment] = useState<string>("");
   const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
   const inputRef = useRef<TextInput | null>(null);
 
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["posts", id],
+    queryFn: async () => fetchPostsById(id),
+  });
+
   const detailedPost = posts.find((post) => post.id === id);
   const postComments = comments.filter(
     (comment) => comment.post_id === detailedPost?.id
   );
-
 
   const handleReplyButtonPressed = useCallback((commentId: string) => {
     console.log(commentId);
     inputRef.current?.focus();
   }, []);
 
-  if (!detailedPost) {
-    return <Text>Post Not Found!</Text>;
+  if (isLoading) {
+    return (
+      <View>
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
+  if (!data || error) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <Text>Post Not Found!</Text>
+      </View>
+    );
   }
 
   return (
@@ -47,10 +66,16 @@ export default function PostDetailed() {
     >
       <FlatList
         ListHeaderComponent={
-          <PostListItem post={detailedPost} isDetailedPost />
+          <PostListItem post={data} isDetailedPost />
         }
         data={postComments}
-        renderItem={({ item }) => <CommentListItem comment={item} depth={0} handleReplyButtonPressed={handleReplyButtonPressed} />}
+        renderItem={({ item }) => (
+          <CommentListItem
+            comment={item}
+            depth={0}
+            handleReplyButtonPressed={handleReplyButtonPressed}
+          />
+        )}
       />
       {/* POST A COMMENT */}
       <View
