@@ -27,7 +27,7 @@ export const fetchGroups = async (search: string) => {
     console.error("Supabase error:", error);
     throw error;
   } else {
-    console.log("Supabase groups data:", JSON.stringify(data, null, 2)); // 👈 check what comes back
+    // console.log("Supabase groups data:", JSON.stringify(data, null, 2)); // 👈 check what comes back
     return data;
   }
 };

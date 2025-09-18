@@ -10,14 +10,19 @@ import {
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { EvilIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useSetAtom } from "jotai";
 
 import { selectedGroupAtom } from "../../atoms";
 // import groups from "../../../assets/data/groups.json";
-import { Group } from "../../types";
+// import { Group } from "../../types";
 import { fetchGroups } from "../../services/groupService";
 import { useQuery } from "@tanstack/react-query"; 
+import { Tables } from "../../types/database.types";
+
+
+type Group = Tables<"groups">;
 
 export default function GroupSelector() {
   const [searchValue, setSearchValue] = useState<string>("");
@@ -88,7 +93,7 @@ export default function GroupSelector() {
           marginTop: 5,
         }}
       >
-        <AntDesign name="search" size={16} color="gray" />
+        <EvilIcons name="search" size={16} color="gray" />
         <TextInput
           placeholder="Search for a community"
           placeholderTextColor={"grey"}

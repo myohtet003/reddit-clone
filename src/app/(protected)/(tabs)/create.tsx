@@ -14,13 +14,36 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { useAtom } from "jotai";
+import { useMutation } from "@tanstack/react-query";
 
 import { selectedGroupAtom } from "../../../atoms";
+import { supabase } from "../../../lib/superbase";
 
 export default function CreateScreen() {
   const [title, setTitle] = useState<string>("");
   const [bodyText, setBodyText] = useState<string>("");
   const [group, setGroup] = useAtom(selectedGroupAtom);
+
+  const { mutate, data, error } = useMutation({
+    mutationFn: async () => {
+      // API call to insert a new post
+      const { data, error } = await supabase
+        .from("posts")
+        .insert({
+          title,
+          description: bodyText,
+          group_id: "group_id",
+          user_id: "user_id",
+        })
+        .select();
+
+      if (error) {
+        throw error;
+      } else {
+        return data;
+      }
+    },
+  });
 
   const goBack = () => {
     setTitle("");
@@ -64,10 +87,10 @@ export default function CreateScreen() {
               {group ? (
                 <>
                   <Image
-                    source={{ uri: group.image }}
+                    source={{ uri: group.image ?? "" }}
                     style={{ width: 20, height: 20, borderRadius: 10 }}
                   />
-                  <Text style={{fontWeight: '600'}}>{group.name}</Text>
+                  <Text style={{ fontWeight: "600" }}>{group.name}</Text>
                 </>
               ) : (
                 <>

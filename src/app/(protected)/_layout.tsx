@@ -1,6 +1,6 @@
 import { Redirect, router, Stack } from "expo-router";
 import { useAuth } from "@clerk/clerk-expo";
-import { AntDesign, Entypo, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Entypo, EvilIcons, MaterialIcons } from "@expo/vector-icons";
 import { View } from "react-native";
 
 export default function AppLayout() {
@@ -29,8 +29,8 @@ export default function AppLayout() {
             />
           ),
           headerRight: () => (
-            <View style={{ flexDirection: "row", gap: 10 }}>
-              <AntDesign name="search1" size={24} color="white" />
+            <View style={{ flexDirection: "row", alignItems:"center", gap: 10 }}>
+              <EvilIcons name="search" size={24} color="white" />
               <MaterialIcons name="sort" size={27} color="white" />
               <Entypo name="dots-three-horizontal" size={24} color="white" />
             </View>
