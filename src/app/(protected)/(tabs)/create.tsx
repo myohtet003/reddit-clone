@@ -8,42 +8,74 @@ import {
   Platform,
   ScrollView,
   Image,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { useAtom } from "jotai";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { selectedGroupAtom } from "../../../atoms";
 import { supabase } from "../../../lib/superbase";
+import { TablesInsert } from "../../../types/database.types";
+
+type InsertPost = TablesInsert<"posts">;
+
+const insertPost = async (post: InsertPost) => {
+  // API call to insert a new post
+  const { data, error } = await supabase
+    .from("posts")
+    .insert(post)
+    .select()
+    .single();
+
+  if (error) {
+    throw error;
+  } else {
+    return data;
+  }
+};
 
 export default function CreateScreen() {
   const [title, setTitle] = useState<string>("");
   const [bodyText, setBodyText] = useState<string>("");
   const [group, setGroup] = useAtom(selectedGroupAtom);
 
-  const { mutate, data, error } = useMutation({
-    mutationFn: async () => {
-      // API call to insert a new post
-      const { data, error } = await supabase
-        .from("posts")
-        .insert({
-          title,
-          description: bodyText,
-          group_id: "group_id",
-          user_id: "user_id",
-        })
-        .select();
+  const queryClient = useQueryClient();
 
-      if (error) {
-        throw error;
-      } else {
-        return data;
+  const { mutate, isPending } = useMutation({
+    mutationFn: () => {
+
+      if(!group) {
+        throw new Error("Please select a community");
       }
+      if(!title) {
+        throw new Error("Title is required");
+      }
+       
+      return insertPost({
+        title,
+        description: bodyText,
+        group_id: group.id ,
+        user_id: "446eadc5-e323-4bc9-b817-2c43f3b22e91",
+      });
     },
+     
+      onSuccess: (data) => {
+        console.log("data", data); 
+
+        // Invalidate and refetch
+        queryClient.invalidateQueries({ queryKey: ["posts"] });
+        goBack();
+      },
+      onError: (error) => {
+        // console.error("Error inserting post:", error);
+        Alert.alert("Fail to Insert Data", error.message);
+      },
   });
+
 
   const goBack = () => {
     setTitle("");
@@ -65,10 +97,13 @@ export default function CreateScreen() {
           onPress={() => goBack()}
         />
         <Pressable
-          onPress={() => console.error("Pressed")}
+          onPress={() => mutate()}
           style={{ marginLeft: "auto" }}
+          disabled={isPending}
         >
-          <Text style={styles.postText}>Post</Text>
+          <Text style={styles.postText}>
+            {isPending ? "Posting..." : "Post"}
+          </Text>
         </Pressable>
       </View>
 

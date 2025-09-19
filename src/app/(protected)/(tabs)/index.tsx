@@ -12,15 +12,17 @@ import { useQuery } from "@tanstack/react-query";
 import PostListItem from "../../../components/PostListItem"; 
 import { fetchPosts } from "../../../services/postService";
 
-
-
 // import posts from "../../../../assets/data/posts.json";
+
+
 
 export default function HomeScreen() {
   const {
     data: posts,
-    error,
     isLoading,
+    error,
+    refetch,
+    isRefetching,
   } = useQuery({
     queryKey: ["posts"],
     queryFn: async () => fetchPosts(),
@@ -57,6 +59,8 @@ export default function HomeScreen() {
         data={posts}
         renderItem={({ item }) => <PostListItem post={item} />}
         keyExtractor={(item) => item.id}
+        onRefresh={refetch}
+        refreshing={isRefetching}
       />
     </View>
   );
